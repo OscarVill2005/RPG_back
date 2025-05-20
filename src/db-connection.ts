@@ -5,7 +5,7 @@ const pool = new Pool({
   password: 'Rumbo2005',
   host: 'localhost',
   port: 5432, // default Postgres port
-  database: 'bar'
+  database: 'rpg'
 });
 
 export function query(text: any): any {
