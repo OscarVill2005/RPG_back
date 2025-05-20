@@ -84,8 +84,8 @@ app.get('/player/:id', function (req, res) { return __awaiter(void 0, void 0, vo
                     res.json(db_response.rows[0]);
                 }
                 else {
-                    console.log("PLayer not found.");
-                    res.json("User not found");
+                    console.log("Player not found.");
+                    res.json("Player not found");
                 }
                 return [3 /*break*/, 4];
             case 3:
@@ -97,7 +97,7 @@ app.get('/player/:id', function (req, res) { return __awaiter(void 0, void 0, vo
         }
     });
 }); });
-var port = process.env.PORT || 3300;
+var port = process.env.PORT || 3000;
 app.listen(port, function () {
     return console.log("App listening on PORT " + port + ".\n\n    ENDPOINTS:\n    \n     - GET /user/:email\n     - GET /products/:name\n     - GET /products/id/:id\n     - GET /products/price/:price\n     - GET /products\n     - POST /user\n     - POST\n     ");
 });

@@ -20,8 +20,8 @@ app.get('/player/:id', async (req, res) => {
             console.log(`Usuario encontrado: ${db_response.rows[0].id}`);
             res.json(db_response.rows[0]);   
         } else{
-            console.log(`PLayer not found.`)
-            res.json(`User not found`);
+            console.log(`Player not found.`)
+            res.json(`Player not found`);
         }
 
     } catch (err){
