@@ -2,10 +2,10 @@ import { Pool } from 'pg';
 
 const pool = new Pool({
   user: 'postgres',
-  password: 'admin',
+  password: 'Rumbo2005',
   host: 'localhost',
   port: 5432, // default Postgres port
-  database: 'RPG'
+  database: 'rpg'
 });
 
 export function query(text: any): any {
