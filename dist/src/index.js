@@ -97,6 +97,36 @@ app.get('/player/:id', function (req, res) { return __awaiter(void 0, void 0, vo
         }
     });
 }); });
+app.post('/player', jsonParser, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var query, db_response, err_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                console.log("Petici\u00F3n recibida al endpoint POST /player. \n        Body: " + JSON.stringify(req.body));
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                query = "INSERT INTO players (\n        id, name, health_points, mana_points, strength, magical_damage,\n        critical_chance, critical_damage, defense, experience,\n        level, currency\n        ) VALUES \n        ( '" + req.body.id + "', '" + req.body.name + "', " + req.body.health_points + ", " + req.body.mana_points + ",\n        " + req.body.strength + ", " + req.body.magical_damage + ", " + req.body.critical_chance + ",\n        " + req.body.critical_damage + ", " + req.body.defense + ", " + req.body.experience + ",\n        " + req.body.level + ", " + req.body.currency + "\n        )";
+                return [4 /*yield*/, db.query(query)];
+            case 2:
+                db_response = _a.sent();
+                if (db_response.rowCount == 1) {
+                    console.log("Player a\u00F1adido");
+                    res.json("El registro ha sido creado correctamente.");
+                }
+                else {
+                    res.json("El registro NO ha sido creado.");
+                }
+                return [3 /*break*/, 4];
+            case 3:
+                err_2 = _a.sent();
+                console.error(err_2);
+                res.status(500).send('Internal Server Error');
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 var port = process.env.PORT || 3000;
 app.listen(port, function () {
     return console.log("App listening on PORT " + port + ".\n\n    ENDPOINTS:\n    \n     - GET /user/:email\n     - GET /products/:name\n     - GET /products/id/:id\n     - GET /products/price/:price\n     - GET /products\n     - POST /user\n     - POST\n     ");

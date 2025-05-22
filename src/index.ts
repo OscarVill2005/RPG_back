@@ -40,16 +40,25 @@ app.post('/player', jsonParser, async (req, res) => {
 
 
 
-        let query = `  INSERT INTO players (
-        id, health_points, mana_points, strength, magical_damage,
+        let query = `INSERT INTO players (
+        id, name, health_points, mana_points, strength, magical_damage,
         critical_chance, critical_damage, defense, experience,
         level, currency
         ) VALUES 
-        ( ${req.body.id}, ${req.body.health_points}, ${req.body.mana_points},
+        ( '${req.body.id}', '${req.body.name}', ${req.body.health_points}, ${req.body.mana_points},
         ${req.body.strength}, ${req.body.magical_damage}, ${req.body.critical_chance},
         ${req.body.critical_damage}, ${req.body.defense}, ${req.body.experience},
-        ${req.body.health_level}, ${req.body.currency}
-        )`
+        ${req.body.level}, ${req.body.currency}
+        )`;
+
+        let db_response = await db.query(query);
+
+        if (db_response.rowCount == 1) {
+            console.log(`Player añadido`)
+            res.json(`El registro ha sido creado correctamente.`);
+        } else {
+            res.json(`El registro NO ha sido creado.`);
+        }
 
     } catch (err) {
         console.error(err);
