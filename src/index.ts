@@ -12,19 +12,19 @@ app.get('/player/:id', async (req, res) => {
     console.log(`Petición recibida al endpoint GET /player/:id.`);
     console.log(`Parámetro recibido por URL: ${req.params.id}`);
 
-    try{
+    try {
         let query = `SELECT * FROM players WHERE id='${req.params.id}'`;
         let db_response = await db.query(query);
 
-        if(db_response.rows.length > 0){
+        if (db_response.rows.length > 0) {
             console.log(`Usuario encontrado: ${db_response.rows[0].id}`);
-            res.json(db_response.rows[0]);   
-        } else{
+            res.json(db_response.rows[0]);
+        } else {
             console.log(`Player not found.`)
             res.json(`Player not found`);
         }
 
-    } catch (err){
+    } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
     }
@@ -38,12 +38,18 @@ app.post('/player', jsonParser, async (req, res) => {
 
     try {
 
-        let query = `UPDATE players
-        SET health_points = ${req.body.health_points}, mana_points = ${req.body.mana_points},
-        strength = ${req.body.strength}, magical_damage = ${req.body.magical_damage},
-        critical_chance = ${req.body.critical_chance}, critical_damage = ${req.body.critical_damage},
-        defense = ${req.body.defense}, experience = ${req.body.experience},
-        level = ${req.body.health_level}, currency = ${req.body.currency} WHERE id = ${req.body.id}` 
+
+
+        let query = `  INSERT INTO players (
+        id, health_points, mana_points, strength, magical_damage,
+        critical_chance, critical_damage, defense, experience,
+        level, currency
+        ) VALUES 
+        ( ${req.body.id}, ${req.body.health_points}, ${req.body.mana_points},
+        ${req.body.strength}, ${req.body.magical_damage}, ${req.body.critical_chance},
+        ${req.body.critical_damage}, ${req.body.defense}, ${req.body.experience},
+        ${req.body.health_level}, ${req.body.currency}
+        )`
 
     } catch (err) {
         console.error(err);
@@ -54,7 +60,7 @@ app.post('/player', jsonParser, async (req, res) => {
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => 
+app.listen(port, () =>
     console.log(`App listening on PORT ${port}.
 
     ENDPOINTS:
