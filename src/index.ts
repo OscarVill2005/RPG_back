@@ -31,6 +31,26 @@ app.get('/player/:id', async (req, res) => {
 
 });
 
+app.post('/player', jsonParser, async (req, res) => {
+
+    console.log(`Petición recibida al endpoint POST /player. 
+        Body: ${JSON.stringify(req.body)}`);
+
+    try {
+
+        let query = `UPDATE players
+        SET health_points = ${req.body.health_points}, mana_points = ${req.body.mana_points},
+        strength = ${req.body.strength}, magical_damage = ${req.body.magical_damage},
+        critical_chance = ${req.body.critical_chance}, critical_damage = ${req.body.critical_damage},
+        defense = ${req.body.defense}, experience = ${req.body.experience},
+        level = ${req.body.health_level}, currency = ${req.body.currency} WHERE id = ${req.body.id}` 
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 const port = process.env.PORT || 3000;
 
