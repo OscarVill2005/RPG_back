@@ -60,11 +60,54 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var cors_1 = __importDefault(require("cors"));
+var socket_io_1 = require("socket.io");
+var http_1 = __importDefault(require("http"));
+var path_1 = __importDefault(require("path"));
 var app = express_1.default();
 app.use(cors_1.default());
+var server = http_1.default.createServer(app);
+var io = new socket_io_1.Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+    }
+});
+app.use(express_1.default.static(path_1.default.join(__dirname, 'dist/draw_board')));
+var users = [];
 var body_parser_1 = __importDefault(require("body-parser"));
 var jsonParser = body_parser_1.default.json();
 var db = __importStar(require("./db-connection"));
+io.on('connection', function (socket) {
+    socket.on('disconnect', function () {
+        if (socket.data.username) {
+            users[socket.data.room_code].delete(socket.data.username);
+            if (users[socket.data.room_code].size == 0) {
+                delete users[socket.data.room];
+            }
+            io.emit('user_list' + socket.data.room_code, Array.from(users[socket.data.room_code])); // Emitir la lista de usuarios a todos
+            io.emit('user left', socket.data.username); // Avisar a todos que un usuario ha salido
+        }
+    });
+    socket.on('join room', function (info) {
+        info = info.info;
+        socket.join("" + info.code);
+        console.log("User " + info.user_name + " joined room " + info.code);
+        console.log(info);
+        socket.data.username = info.user_name;
+        socket.data.room_code = info.code;
+        if (!users[info.code]) {
+            users[info.code] = new Set();
+        }
+        users[info.code].add(info.user_name);
+        io.emit('user_list_' + info.code, Array.from(users[info.code]));
+        console.log(users);
+        //console.log(socket.rooms)
+    });
+    /*socket.on('draw', (draw: { prev_p: any, cur_p: any, room_num: any}) => {
+        console.log('Received draw data:', draw, draw.room_num);
+        io.to(`${draw.room_num}`).emit('draw', {draw});
+    });*/
+});
 app.get('/player/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var query, db_response, err_1;
     return __generator(this, function (_a) {

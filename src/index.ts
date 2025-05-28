@@ -1,12 +1,70 @@
 import express from "express";
 import cors from 'cors';
+import { Server } from 'socket.io';
+import http from 'http';
+import path from 'path';
+
 const app = express();
 app.use(cors());
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+    }
+});
+
+app.use(express.static(path.join(__dirname, 'dist/draw_board')));
+
+let users: Set<unknown>[] = []
 
 import bodyParser from 'body-parser';
 const jsonParser = bodyParser.json();
 
 import * as db from './db-connection';
+
+io.on('connection', (socket: any) => {
+
+    socket.on('disconnect', () => {
+        if (socket.data.username) {
+
+            users[socket.data.room_code].delete(socket.data.username)
+            if (users[socket.data.room_code].size == 0) {
+                delete users[socket.data.room]
+            }
+            io.emit('user_list' + socket.data.room_code, Array.from(users[socket.data.room_code])); // Emitir la lista de usuarios a todos
+            io.emit('user left', socket.data.username); // Avisar a todos que un usuario ha salido
+        }
+
+    });
+
+    socket.on('join room', (info: any) => {
+        info = info.info
+        socket.join(`${info.code}`)
+        console.log(`User ${info.user_name} joined room ${info.code}`);
+        console.log(info)
+        socket.data.username = info.user_name;
+        socket.data.room_code = info.code
+
+        if (!users[info.code]) {
+            users[info.code] = new Set()
+        }
+
+        users[info.code].add(info.user_name)
+
+        io.emit('user_list_' + info.code, Array.from(users[info.code]));
+        console.log(users)
+
+        //console.log(socket.rooms)
+    });
+
+    /*socket.on('draw', (draw: { prev_p: any, cur_p: any, room_num: any}) => {
+        console.log('Received draw data:', draw, draw.room_num);
+        io.to(`${draw.room_num}`).emit('draw', {draw});
+    });*/
+
+});
 
 app.get('/player/:id', async (req, res) => {
     console.log(`Petición recibida al endpoint GET /player/:id.`);
@@ -37,8 +95,6 @@ app.post('/player', jsonParser, async (req, res) => {
         Body: ${JSON.stringify(req.body)}`);
 
     try {
-
-
 
         let query = `INSERT INTO players (
         id, name, health_points, mana_points, strength, magical_damage,
