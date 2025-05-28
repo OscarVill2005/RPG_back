@@ -125,7 +125,7 @@ app.post('/player', jsonParser, async (req, res) => {
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () =>
+server.listen(port, () =>
     console.log(`App listening on PORT ${port}.
 
     ENDPOINTS:

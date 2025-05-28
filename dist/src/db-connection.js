@@ -4,10 +4,10 @@ exports.query = void 0;
 var pg_1 = require("pg");
 var pool = new pg_1.Pool({
     user: 'postgres',
-    password: 'Rumbo2005',
+    password: 'admin',
     host: 'localhost',
     port: 5432,
-    database: 'rpg'
+    database: 'RPG'
 });
 function query(text) {
     return pool.query(text);
