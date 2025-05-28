@@ -40,7 +40,7 @@ io.on('connection', (socket: any) => {
     });
 
     socket.on('join room', (info: any) => {
-        info = info.info
+        //info = info.info
         socket.join(`${info.code}`)
         console.log(`User ${info.user_name} joined room ${info.code}`);
         console.log(info)
