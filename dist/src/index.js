@@ -170,7 +170,7 @@ app.post('/player', jsonParser, function (req, res) { return __awaiter(void 0, v
         }
     });
 }); });
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3300;
 app.listen(port, function () {
     return console.log("App listening on PORT " + port + ".\n\n    ENDPOINTS:\n    \n     - GET /user/:email\n     - GET /products/:name\n     - GET /products/id/:id\n     - GET /products/price/:price\n     - GET /products\n     - POST /user\n     - POST\n     ");
 });
