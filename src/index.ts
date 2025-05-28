@@ -18,6 +18,7 @@ const io = new Server(server, {
 app.use(express.static(path.join(__dirname, 'dist/draw_board')));
 
 let users: Set<unknown>[] = []
+let emails: Set<unknown>[] = []
 
 import bodyParser from 'body-parser';
 const jsonParser = bodyParser.json();
@@ -53,16 +54,72 @@ io.on('connection', (socket: any) => {
 
         users[info.code].add(info.user_name)
 
+        if (!emails[info.code]) {
+            emails[info.code] = new Set()
+        }
+
+        emails[info.code].add(info.email)
+
         io.emit('user_list_' + info.code, Array.from(users[info.code]));
         console.log(users)
 
-        //console.log(socket.rooms)
-    });
+        socket.on('start game' + info.code, async (start: boolean) => {
 
-    /*socket.on('draw', (draw: { prev_p: any, cur_p: any, room_num: any}) => {
-        console.log('Received draw data:', draw, draw.room_num);
-        io.to(`${draw.room_num}`).emit('draw', {draw});
-    });*/
+            let user_emails = Array.from(emails[info.code]);
+            let users_data = []
+
+            for(let i = 0; i < user_emails.length; i++) {
+            try {
+                let query = `SELECT * FROM players WHERE id='${user_emails[i]}'`;
+                let db_response = await db.query(query);
+
+                if (db_response.rows.length > 0) {
+                    console.log(`Usuario encontrado: ${db_response.rows[0].id}`);
+                    users_data.push(db_response.rows[0])
+                } else {
+                    console.log(`Player not found.`)
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        let gamedata = {
+            //añadir toda la info de los players boss y turno
+            player1: {
+                name: users_data[0].name
+            },
+            player2: {
+                name: users_data[1].name
+            },
+            player3: {
+                name: users_data[2].name
+            },
+            player4: {
+                name: users_data[3].name
+            },
+            boss: {
+
+            },
+            game:{
+                current_turn: 1,
+                game_over: false,
+            }
+        }
+
+        socket.emit('game started' + info.code, gamedata);
+
+        socket.on('turn' + info.code, (turn_events: any) => {
+        //gestionar game data de turno
+
+        socket.emit('finished_turn' + info.code, gamedata)
+        })
+        
+    })
+
+});
+    
 
 });
 
@@ -125,7 +182,7 @@ app.post('/player', jsonParser, async (req, res) => {
 
 const port = process.env.PORT || 3000;
 
-server.listen(port, () =>
+app.listen(port, () =>
     console.log(`App listening on PORT ${port}.
 
     ENDPOINTS:

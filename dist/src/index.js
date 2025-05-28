@@ -74,6 +74,7 @@ var io = new socket_io_1.Server(server, {
 });
 app.use(express_1.default.static(path_1.default.join(__dirname, 'dist/draw_board')));
 var users = [];
+var emails = [];
 var body_parser_1 = __importDefault(require("body-parser"));
 var jsonParser = body_parser_1.default.json();
 var db = __importStar(require("./db-connection"));
@@ -99,17 +100,79 @@ io.on('connection', function (socket) {
             users[info.code] = new Set();
         }
         users[info.code].add(info.user_name);
+        if (!emails[info.code]) {
+            emails[info.code] = new Set();
+        }
+        emails[info.code].add(info.email);
         io.emit('user_list_' + info.code, Array.from(users[info.code]));
         console.log(users);
-        //console.log(socket.rooms)
+        socket.on('start game' + info.code, function (start) { return __awaiter(void 0, void 0, void 0, function () {
+            var user_emails, users_data, i, query, db_response, err_1, gamedata;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        user_emails = Array.from(emails[info.code]);
+                        users_data = [];
+                        i = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(i < user_emails.length)) return [3 /*break*/, 6];
+                        _a.label = 2;
+                    case 2:
+                        _a.trys.push([2, 4, , 5]);
+                        query = "SELECT * FROM players WHERE id='" + user_emails[i] + "'";
+                        return [4 /*yield*/, db.query(query)];
+                    case 3:
+                        db_response = _a.sent();
+                        if (db_response.rows.length > 0) {
+                            console.log("Usuario encontrado: " + db_response.rows[0].id);
+                            users_data.push(db_response.rows[0]);
+                        }
+                        else {
+                            console.log("Player not found.");
+                        }
+                        return [3 /*break*/, 5];
+                    case 4:
+                        err_1 = _a.sent();
+                        console.error(err_1);
+                        return [3 /*break*/, 5];
+                    case 5:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 6:
+                        gamedata = {
+                            //añadir toda la info de los players boss y turno
+                            player1: {
+                                name: users_data[0].name
+                            },
+                            player2: {
+                                name: users_data[1].name
+                            },
+                            player3: {
+                                name: users_data[2].name
+                            },
+                            player4: {
+                                name: users_data[3].name
+                            },
+                            boss: {},
+                            game: {
+                                current_turn: 1,
+                                game_over: false,
+                            }
+                        };
+                        socket.emit('game started' + info.code, gamedata);
+                        socket.on('turn' + info.code, function (turn_events) {
+                            //gestionar game data de turno
+                            socket.emit('finished_turn' + info.code, gamedata);
+                        });
+                        return [2 /*return*/];
+                }
+            });
+        }); });
     });
-    /*socket.on('draw', (draw: { prev_p: any, cur_p: any, room_num: any}) => {
-        console.log('Received draw data:', draw, draw.room_num);
-        io.to(`${draw.room_num}`).emit('draw', {draw});
-    });*/
 });
 app.get('/player/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var query, db_response, err_1;
+    var query, db_response, err_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -132,8 +195,8 @@ app.get('/player/:id', function (req, res) { return __awaiter(void 0, void 0, vo
                 }
                 return [3 /*break*/, 4];
             case 3:
-                err_1 = _a.sent();
-                console.error(err_1);
+                err_2 = _a.sent();
+                console.error(err_2);
                 res.status(500).send('Internal Server Error');
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -141,7 +204,7 @@ app.get('/player/:id', function (req, res) { return __awaiter(void 0, void 0, vo
     });
 }); });
 app.post('/player', jsonParser, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var query, db_response, err_2;
+    var query, db_response, err_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -162,8 +225,8 @@ app.post('/player', jsonParser, function (req, res) { return __awaiter(void 0, v
                 }
                 return [3 /*break*/, 4];
             case 3:
-                err_2 = _a.sent();
-                console.error(err_2);
+                err_3 = _a.sent();
+                console.error(err_3);
                 res.status(500).send('Internal Server Error');
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
@@ -171,6 +234,6 @@ app.post('/player', jsonParser, function (req, res) { return __awaiter(void 0, v
     });
 }); });
 var port = process.env.PORT || 3000;
-server.listen(port, function () {
+app.listen(port, function () {
     return console.log("App listening on PORT " + port + ".\n\n    ENDPOINTS:\n    \n     - GET /user/:email\n     - GET /products/:name\n     - GET /products/id/:id\n     - GET /products/price/:price\n     - GET /products\n     - POST /user\n     - POST\n     ");
 });
