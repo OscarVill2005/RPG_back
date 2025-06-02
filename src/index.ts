@@ -185,10 +185,10 @@ io.on('connection', (socket: any) => {
                 gamedata.game.current_player = gamedata.game.current_turn % (user_emails.length + 1);
                 let boss_action = Math.floor(Math.random() * (5 - 1 + 1 ) + 1 )
                 if (boss_action > 2){
-                    gamedata.player1.health_points = gamedata.player1.health_points - gamedata.boss.damage //aplicar defensa;
-                    gamedata.player2.health_points = gamedata.player2.health_points - gamedata.boss.damage;
-                    gamedata.player3.health_points = gamedata.player3.health_points - gamedata.boss.damage;
-                    gamedata.player4.health_points = gamedata.player4.health_points - gamedata.boss.damage;
+                    gamedata.player1.health_points = gamedata.player1.health_points - (gamedata.boss.damage - (gamedata.player1.defense / 2));
+                    gamedata.player2.health_points = gamedata.player2.health_points - (gamedata.boss.damage - (gamedata.player2.defense / 2));
+                    gamedata.player3.health_points = gamedata.player3.health_points - (gamedata.boss.damage - (gamedata.player3.defense / 2));
+                    gamedata.player4.health_points = gamedata.player4.health_points - (gamedata.boss.damage - (gamedata.player4.defense / 2));
                 } else {
                     gamedata.boss.health = gamedata.boss.health + Math.floor(Math.random() * (250 - 50 + 1 ) + 50 );
                 }
