@@ -129,21 +129,72 @@ io.on('connection', (socket: any) => {
                     defense: users_data[3].defense,
                 },
                 boss: {
-                    
-
+                    health : Math.floor(Math.random() * (900 - 500 + 1 ) + 500 ),
+                    damage : Math.floor(Math.random() * (100 - 40 + 1 ) + 40 ),
                 },
                 game: {
                     current_turn: 1,
+                    current_player: 0,
                     game_over: false,
+                    game_finished : false,
                 }
             }
 
             socket.emit('game started' + info.code, gamedata);
 
-            socket.on('turn' + info.code, (turn_events: any) => {
+            socket.on('turn' + info.code, (action: any) => {
+                console.log(action);
+                let user_emails = Array.from(emails[info.code]);
                 //gestionar game data de turno
-
+                if (action.damage > 0){
+                gamedata.boss.health = gamedata.boss.health - action.damage;
+                }
+                if (action.heal > 0){
+                    gamedata.player1.health_points = gamedata.player1.health_points + action.heal;
+                    gamedata.player2.health_points = gamedata.player2.health_points + action.heal;
+                    gamedata.player3.health_points = gamedata.player3.health_points + action.heal;
+                    gamedata.player4.health_points = gamedata.player4.health_points + action.heal;
+                }
+                if (action.defense > 0){
+                    gamedata.player1.defense = gamedata.player1.defense + action.defense;
+                    gamedata.player2.defense = gamedata.player2.defense + action.defense;
+                    gamedata.player3.defense = gamedata.player3.defense + action.defense;
+                    gamedata.player4.defense = gamedata.player4.defense + action.defense;                    
+                }
+                //asignar turno
+                gamedata.game.current_turn ++;
+                gamedata.game.current_player = gamedata.game.current_turn % (user_emails.length + 1);
+                if (gamedata.game.current_player == 0 && gamedata.player1.health_points <= 0 && user_emails.length >= gamedata.game.current_player - 1 ||
+                    gamedata.game.current_player == 1 && gamedata.player2.health_points <= 0 && user_emails.length >= gamedata.game.current_player - 1 ||
+                    gamedata.game.current_player == 2 && gamedata.player3.health_points <= 0 && user_emails.length >= gamedata.game.current_player - 1 ||
+                    gamedata.game.current_player == 3 && gamedata.player4.health_points <= 0 && user_emails.length >= gamedata.game.current_player - 1){
+                    gamedata.game.current_turn ++;
+                    gamedata.game.current_player = gamedata.game.current_turn % (user_emails.length + 1);                    
+                }
+                console.log(gamedata.game)
+                if(gamedata.boss.health <= 0){
+                    gamedata.game.game_finished = true;
+                    socket.emit('finished_turn' + info.code, gamedata)
+                } else if (gamedata.player1.health_points <= 0 && gamedata.player2.health_points <= 0 && gamedata.player3.health_points <= 0 && gamedata.player4.health_points <= 0){
+                    gamedata.game.game_over = true;
+                    gamedata.game.game_finished = true;
+                    socket.emit('finished_turn' + info.code, gamedata)
+                } else {
+                if (gamedata.game.current_player == user_emails.length - 1){
+                gamedata.game.current_turn ++;
+                gamedata.game.current_player = gamedata.game.current_turn % (user_emails.length + 1);
+                let boss_action = Math.floor(Math.random() * (5 - 1 + 1 ) + 1 )
+                if (boss_action > 2){
+                    gamedata.player1.health_points = gamedata.player1.health_points - (gamedata.boss.damage - (gamedata.player1.defense / 2));
+                    gamedata.player2.health_points = gamedata.player2.health_points - (gamedata.boss.damage - (gamedata.player2.defense / 2));
+                    gamedata.player3.health_points = gamedata.player3.health_points - (gamedata.boss.damage - (gamedata.player3.defense / 2));
+                    gamedata.player4.health_points = gamedata.player4.health_points - (gamedata.boss.damage - (gamedata.player4.defense / 2));
+                } else {
+                    gamedata.boss.health = gamedata.boss.health + Math.floor(Math.random() * (250 - 50 + 1 ) + 50 );
+                }
+                }
                 socket.emit('finished_turn' + info.code, gamedata)
+            }
             })
 
         })
