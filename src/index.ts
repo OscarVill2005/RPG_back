@@ -165,6 +165,13 @@ io.on('connection', (socket: any) => {
                     gamedata.player3.defense = gamedata.player3.defense + action.defense;
                     gamedata.player4.defense = gamedata.player4.defense + action.defense;                    
                 }
+
+                action = {
+                        name: action.name,
+                        heal: 0,
+                        damage: 0,
+                        defense: 0
+                }
                 //asignar turno
                 gamedata.game.current_turn ++;
                 gamedata.game.current_player = gamedata.game.current_turn % (user_emails.length + 1);
@@ -178,6 +185,7 @@ io.on('connection', (socket: any) => {
                 console.log(gamedata.game)
                 if(gamedata.boss.health <= 0){
                     gamedata.game.game_finished = true;
+                    console.log('GAME FINISHED WIN DATA:' + JSON.stringify(gamedata));
                     socket.emit('finished_turn' + info, gamedata)
                 } else if (gamedata.player1.health_points <= 0 && gamedata.player2.health_points <= 0 && gamedata.player3.health_points <= 0 && gamedata.player4.health_points <= 0){
                     gamedata.game.game_over = true;
