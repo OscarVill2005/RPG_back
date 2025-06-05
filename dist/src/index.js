@@ -143,16 +143,44 @@ io.on('connection', function (socket) {
                         gamedata = {
                             //añadir toda la info de los players boss y turno
                             player1: {
-                                name: users_data[0].name
+                                name: users_data[0].name,
+                                health_points: users_data[0].health_points,
+                                mana_points: users_data[0].mana_points,
+                                strength: users_data[0].strength,
+                                magical_damage: users_data[0].magical_damage,
+                                critical_chance: users_data[0].critical_chance,
+                                critical_damage: users_data[0].critical_damage,
+                                defense: users_data[0].defense,
                             },
                             player2: {
-                                name: users_data[1].name
+                                name: users_data[1].name,
+                                health_points: users_data[1].health_points,
+                                mana_points: users_data[1].mana_points,
+                                strength: users_data[1].strength,
+                                magical_damage: users_data[1].magical_damage,
+                                critical_chance: users_data[1].critical_chance,
+                                critical_damage: users_data[1].critical_damage,
+                                defense: users_data[1].defense,
                             },
                             player3: {
-                                name: users_data[2].name
+                                name: users_data[2].name,
+                                health_points: users_data[2].health_points,
+                                mana_points: users_data[2].mana_points,
+                                strength: users_data[2].strength,
+                                magical_damage: users_data[2].magical_damage,
+                                critical_chance: users_data[2].critical_chance,
+                                critical_damage: users_data[2].critical_damage,
+                                defense: users_data[2].defense,
                             },
                             player4: {
-                                name: users_data[3].name
+                                name: users_data[3].name,
+                                health_points: users_data[3].health_points,
+                                mana_points: users_data[3].mana_points,
+                                strength: users_data[3].strength,
+                                magical_damage: users_data[3].magical_damage,
+                                critical_chance: users_data[3].critical_chance,
+                                critical_damage: users_data[3].critical_damage,
+                                defense: users_data[3].defense,
                             },
                             boss: {},
                             game: {
@@ -234,6 +262,6 @@ app.post('/player', jsonParser, function (req, res) { return __awaiter(void 0, v
     });
 }); });
 var port = process.env.PORT || 3000;
-app.listen(port, function () {
+server.listen(port, function () {
     return console.log("App listening on PORT " + port + ".\n\n    ENDPOINTS:\n    \n     - GET /user/:email\n     - GET /products/:name\n     - GET /products/id/:id\n     - GET /products/price/:price\n     - GET /products\n     - POST /user\n     - POST\n     ");
 });
