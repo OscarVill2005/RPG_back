@@ -130,7 +130,7 @@ io.on('connection', (socket: any) => {
                     defense: users_data[3]?.defense,
                 },
                 boss: {
-                    health : Math.floor(Math.random() * (900 - 400 + 1 ) + 400 ),
+                    health : 500,
                     damage : Math.floor(Math.random() * (100 - 40 + 1 ) + 40 ),
                 },
                 game: {
@@ -140,8 +140,8 @@ io.on('connection', (socket: any) => {
                     game_finished : false,
                 }
             }
-
-            socket.emit('game started' + info.code, gamedata);
+            console.log('GAME START:' + info.code)
+            io.emit('game started' + info.code, gamedata);
 
             socket.on('turn' + info.code, (action: any) => {
                 console.log('Turn emited')
@@ -186,11 +186,11 @@ io.on('connection', (socket: any) => {
                 if(gamedata.boss.health <= 0){
                     gamedata.game.game_finished = true;
                     console.log('GAME FINISHED WIN DATA:' + JSON.stringify(gamedata));
-                    socket.emit('finished_turn' + info, gamedata)
+                    io.emit('finished_turn' + info.code, gamedata)
                 } else if (gamedata.player1.health_points <= 0 && gamedata.player2.health_points <= 0 && gamedata.player3.health_points <= 0 && gamedata.player4.health_points <= 0){
                     gamedata.game.game_over = true;
                     gamedata.game.game_finished = true;
-                    socket.emit('finished_turn' + info, gamedata)
+                    io.emit('finished_turn' + info.code, gamedata)
                 } else {
                 if (gamedata.game.current_player == user_emails.length - 1){
                     console.log('SOLO PLAYER')
@@ -211,7 +211,7 @@ io.on('connection', (socket: any) => {
                 }
                 }
                 console.log('GAMEDATA end turn:' + JSON.stringify(gamedata))
-                socket.emit('finished_turn' + info, gamedata)
+                io.emit('finished_turn' + info.code, gamedata)
             }
             })
 
