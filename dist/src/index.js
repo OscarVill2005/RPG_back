@@ -68,28 +68,28 @@ app.use(cors_1.default());
 var server = http_1.default.createServer(app);
 var io = new socket_io_1.Server(server, {
     cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
-    }
+        origin: "*",
+        methods: ["GET", "POST"],
+    },
 });
-app.use(express_1.default.static(path_1.default.join(__dirname, 'dist/draw_board')));
+app.use(express_1.default.static(path_1.default.join(__dirname, "dist/draw_board")));
 var users = [];
 var emails = [];
 var body_parser_1 = __importDefault(require("body-parser"));
 var jsonParser = body_parser_1.default.json();
 var db = __importStar(require("./db-connection"));
-io.on('connection', function (socket) {
-    socket.on('disconnect', function () {
+io.on("connection", function (socket) {
+    socket.on("disconnect", function () {
         if (socket.data.username) {
             users[socket.data.room_code].delete(socket.data.username);
             if (users[socket.data.room_code].size == 0) {
                 delete users[socket.data.room];
             }
-            io.emit('user_list' + socket.data.room_code, Array.from(users[socket.data.room_code])); // Emitir la lista de usuarios a todos
-            io.emit('user left', socket.data.username); // Avisar a todos que un usuario ha salido
+            io.emit("user_list" + socket.data.room_code, Array.from(users[socket.data.room_code])); // Emitir la lista de usuarios a todos
+            io.emit("user left", socket.data.username); // Avisar a todos que un usuario ha salido
         }
     });
-    socket.on('join room', function (info) {
+    socket.on("join room", function (info) {
         //info = info.info
         socket.join("" + info.code);
         console.log("User " + info.user_name + " joined room " + info.code);
@@ -104,26 +104,29 @@ io.on('connection', function (socket) {
             emails[info.code] = new Set();
         }
         emails[info.code].add(info.email);
-        io.emit('user_list_' + info.code, Array.from(users[info.code]));
-        console.log(users);
-        socket.on('start game' + info.code, function (start) { return __awaiter(void 0, void 0, void 0, function () {
+        io.emit("user_list_" + info.code, Array.from(emails[info.code]));
+        console.log(emails);
+        socket.on("start game" + info.code, function (user_list) { return __awaiter(void 0, void 0, void 0, function () {
             var user_emails, users_data, i, query, db_response, err_1, gamedata;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
+            return __generator(this, function (_0) {
+                switch (_0.label) {
                     case 0:
-                        user_emails = Array.from(emails[info.code]);
+                        console.log("Esto es info en back:" + JSON.stringify(user_list));
+                        user_emails = user_list;
+                        console.log("USER EMAILS:" + user_emails);
                         users_data = [];
                         i = 0;
-                        _a.label = 1;
+                        _0.label = 1;
                     case 1:
                         if (!(i < user_emails.length)) return [3 /*break*/, 6];
-                        _a.label = 2;
+                        _0.label = 2;
                     case 2:
-                        _a.trys.push([2, 4, , 5]);
+                        _0.trys.push([2, 4, , 5]);
                         query = "SELECT * FROM players WHERE id='" + user_emails[i] + "'";
                         return [4 /*yield*/, db.query(query)];
                     case 3:
-                        db_response = _a.sent();
+                        db_response = _0.sent();
                         if (db_response.rows.length > 0) {
                             console.log("Usuario encontrado: " + db_response.rows[0].id);
                             users_data.push(db_response.rows[0]);
@@ -133,13 +136,14 @@ io.on('connection', function (socket) {
                         }
                         return [3 /*break*/, 5];
                     case 4:
-                        err_1 = _a.sent();
+                        err_1 = _0.sent();
                         console.error(err_1);
                         return [3 /*break*/, 5];
                     case 5:
                         i++;
                         return [3 /*break*/, 1];
                     case 6:
+                        console.log("USERSDATA:" + users_data);
                         gamedata = {
                             //añadir toda la info de los players boss y turno
                             player1: {
@@ -153,45 +157,148 @@ io.on('connection', function (socket) {
                                 defense: users_data[0].defense,
                             },
                             player2: {
-                                name: users_data[1].name,
-                                health_points: users_data[1].health_points,
-                                mana_points: users_data[1].mana_points,
-                                strength: users_data[1].strength,
-                                magical_damage: users_data[1].magical_damage,
-                                critical_chance: users_data[1].critical_chance,
-                                critical_damage: users_data[1].critical_damage,
-                                defense: users_data[1].defense,
+                                name: (_a = users_data[1]) === null || _a === void 0 ? void 0 : _a.name,
+                                health_points: (_b = users_data[1]) === null || _b === void 0 ? void 0 : _b.health_points,
+                                mana_points: (_c = users_data[1]) === null || _c === void 0 ? void 0 : _c.mana_points,
+                                strength: (_d = users_data[1]) === null || _d === void 0 ? void 0 : _d.strength,
+                                magical_damage: (_e = users_data[1]) === null || _e === void 0 ? void 0 : _e.magical_damage,
+                                critical_chance: (_f = users_data[1]) === null || _f === void 0 ? void 0 : _f.critical_chance,
+                                critical_damage: (_g = users_data[1]) === null || _g === void 0 ? void 0 : _g.critical_damage,
+                                defense: (_h = users_data[1]) === null || _h === void 0 ? void 0 : _h.defense,
                             },
                             player3: {
-                                name: users_data[2].name,
-                                health_points: users_data[2].health_points,
-                                mana_points: users_data[2].mana_points,
-                                strength: users_data[2].strength,
-                                magical_damage: users_data[2].magical_damage,
-                                critical_chance: users_data[2].critical_chance,
-                                critical_damage: users_data[2].critical_damage,
-                                defense: users_data[2].defense,
+                                name: (_j = users_data[2]) === null || _j === void 0 ? void 0 : _j.name,
+                                health_points: (_k = users_data[2]) === null || _k === void 0 ? void 0 : _k.health_points,
+                                mana_points: (_l = users_data[2]) === null || _l === void 0 ? void 0 : _l.mana_points,
+                                strength: (_m = users_data[2]) === null || _m === void 0 ? void 0 : _m.strength,
+                                magical_damage: (_o = users_data[2]) === null || _o === void 0 ? void 0 : _o.magical_damage,
+                                critical_chance: (_p = users_data[2]) === null || _p === void 0 ? void 0 : _p.critical_chance,
+                                critical_damage: (_q = users_data[2]) === null || _q === void 0 ? void 0 : _q.critical_damage,
+                                defense: (_r = users_data[2]) === null || _r === void 0 ? void 0 : _r.defense,
                             },
                             player4: {
-                                name: users_data[3].name,
-                                health_points: users_data[3].health_points,
-                                mana_points: users_data[3].mana_points,
-                                strength: users_data[3].strength,
-                                magical_damage: users_data[3].magical_damage,
-                                critical_chance: users_data[3].critical_chance,
-                                critical_damage: users_data[3].critical_damage,
-                                defense: users_data[3].defense,
+                                name: (_s = users_data[3]) === null || _s === void 0 ? void 0 : _s.name,
+                                health_points: (_t = users_data[3]) === null || _t === void 0 ? void 0 : _t.health_points,
+                                mana_points: (_u = users_data[3]) === null || _u === void 0 ? void 0 : _u.mana_points,
+                                strength: (_v = users_data[3]) === null || _v === void 0 ? void 0 : _v.strength,
+                                magical_damage: (_w = users_data[3]) === null || _w === void 0 ? void 0 : _w.magical_damage,
+                                critical_chance: (_x = users_data[3]) === null || _x === void 0 ? void 0 : _x.critical_chance,
+                                critical_damage: (_y = users_data[3]) === null || _y === void 0 ? void 0 : _y.critical_damage,
+                                defense: (_z = users_data[3]) === null || _z === void 0 ? void 0 : _z.defense,
                             },
-                            boss: {},
+                            boss: {
+                                health: 500,
+                                damage: Math.floor(Math.random() * (100 - 40 + 1) + 40),
+                            },
                             game: {
                                 current_turn: 1,
+                                current_player: 0,
                                 game_over: false,
-                            }
+                                game_finished: false,
+                            },
                         };
-                        socket.emit('game started' + info.code, gamedata);
-                        socket.on('turn' + info.code, function (turn_events) {
+                        console.log("GAME START:" + info.code);
+                        io.emit("game started" + info.code, gamedata);
+                        socket.on("turn" + info.code, function (action) {
+                            console.log("Turn emited", "turn" + info.code);
+                            console.log(action);
+                            var user_emails = user_list;
+                            console.log("USER EMAILS turn:" + user_emails);
                             //gestionar game data de turno
-                            socket.emit('finished_turn' + info.code, gamedata);
+                            if (action.damage > 0) {
+                                gamedata.boss.health = gamedata.boss.health - action.damage;
+                                console.log("VIDA BOSS :" + gamedata.boss.health);
+                            }
+                            if (action.heal > 0) {
+                                gamedata.player1.health_points =
+                                    gamedata.player1.health_points + action.heal;
+                                gamedata.player2.health_points =
+                                    gamedata.player2.health_points + action.heal;
+                                gamedata.player3.health_points =
+                                    gamedata.player3.health_points + action.heal;
+                                gamedata.player4.health_points =
+                                    gamedata.player4.health_points + action.heal;
+                            }
+                            if (action.defense > 0) {
+                                gamedata.player1.defense = gamedata.player1.defense + action.defense;
+                                gamedata.player2.defense = gamedata.player2.defense + action.defense;
+                                gamedata.player3.defense = gamedata.player3.defense + action.defense;
+                                gamedata.player4.defense = gamedata.player4.defense + action.defense;
+                            }
+                            action = {
+                                name: action.name,
+                                heal: 0,
+                                damage: 0,
+                                defense: 0,
+                            };
+                            //asignar turno
+                            gamedata.game.current_turn++;
+                            gamedata.game.current_player =
+                                gamedata.game.current_turn % (user_emails.length + 1);
+                            if ((gamedata.game.current_player == 0 &&
+                                gamedata.player1.health_points <= 0 &&
+                                user_emails.length >= gamedata.game.current_player - 1) ||
+                                (gamedata.game.current_player == 1 &&
+                                    gamedata.player2.health_points <= 0 &&
+                                    user_emails.length >= gamedata.game.current_player - 1) ||
+                                (gamedata.game.current_player == 2 &&
+                                    gamedata.player3.health_points <= 0 &&
+                                    user_emails.length >= gamedata.game.current_player - 1) ||
+                                (gamedata.game.current_player == 3 &&
+                                    gamedata.player4.health_points <= 0 &&
+                                    user_emails.length >= gamedata.game.current_player - 1)) {
+                                gamedata.game.current_turn++;
+                                gamedata.game.current_player =
+                                    gamedata.game.current_turn % (user_emails.length + 1);
+                            }
+                            console.log(gamedata.game);
+                            if (gamedata.boss.health <= 0) {
+                                gamedata.game.game_finished = true;
+                                console.log("GAME FINISHED WIN DATA:" + JSON.stringify(gamedata));
+                                io.emit("finished_turn" + info.code, gamedata);
+                            }
+                            else if (gamedata.player1.health_points <= 0 &&
+                                gamedata.player2.health_points <= 0 &&
+                                gamedata.player3.health_points <= 0 &&
+                                gamedata.player4.health_points <= 0) {
+                                gamedata.game.game_over = true;
+                                gamedata.game.game_finished = true;
+                                io.emit("finished_turn" + info.code, gamedata);
+                            }
+                            else {
+                                if (gamedata.game.current_player == user_emails.length - 1) {
+                                    console.log("SOLO PLAYER");
+                                    gamedata.game.current_turn++;
+                                    console.log("TURNO EXTRA BOSS: " + gamedata.game.current_turn);
+                                    gamedata.game.current_player =
+                                        gamedata.game.current_turn % (user_emails.length + 1);
+                                    var boss_action = Math.floor(Math.random() * (5 - 1 + 1) + 1);
+                                    console.log("Accion del boss:" + boss_action);
+                                    if (boss_action > 2) {
+                                        gamedata.player1.health_points =
+                                            gamedata.player1.health_points -
+                                                (gamedata.boss.damage - gamedata.player1.defense / 2);
+                                        gamedata.player2.health_points =
+                                            gamedata.player2.health_points -
+                                                (gamedata.boss.damage - gamedata.player2.defense / 2);
+                                        gamedata.player3.health_points =
+                                            gamedata.player3.health_points -
+                                                (gamedata.boss.damage - gamedata.player3.defense / 2);
+                                        gamedata.player4.health_points =
+                                            gamedata.player4.health_points -
+                                                (gamedata.boss.damage - gamedata.player4.defense / 2);
+                                        console.log("Vida de los jugadores:" + gamedata.player1.health_points);
+                                    }
+                                    else {
+                                        gamedata.boss.health =
+                                            gamedata.boss.health +
+                                                Math.floor(Math.random() * (250 - 50 + 1) + 50);
+                                        console.log("Vida del boss:" + gamedata.boss.health);
+                                    }
+                                }
+                                console.log("GAMEDATA end turn:" + JSON.stringify(gamedata));
+                                io.emit("finished_turn" + info.code, gamedata);
+                            }
                         });
                         return [2 /*return*/];
                 }
@@ -199,7 +306,7 @@ io.on('connection', function (socket) {
         }); });
     });
 });
-app.get('/player/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.get("/player/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var query, db_response, err_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -225,13 +332,13 @@ app.get('/player/:id', function (req, res) { return __awaiter(void 0, void 0, vo
             case 3:
                 err_2 = _a.sent();
                 console.error(err_2);
-                res.status(500).send('Internal Server Error');
+                res.status(500).send("Internal Server Error");
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
     });
 }); });
-app.post('/player', jsonParser, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+app.post("/player", jsonParser, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var query, db_response, err_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -255,7 +362,7 @@ app.post('/player', jsonParser, function (req, res) { return __awaiter(void 0, v
             case 3:
                 err_3 = _a.sent();
                 console.error(err_3);
-                res.status(500).send('Internal Server Error');
+                res.status(500).send("Internal Server Error");
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
